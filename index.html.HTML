@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>艾滋病防控多维数据分析报告（2025）</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f5ff 0%, #e6e9f0 100%);
+            color: #333;
+            padding: 30px 20px;
+            min-height: 100vh;
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(95deg, #1a237e, #4a148c, #6a1b9a);
+            color: white;
+        }
+        
+        .header-section h1 {
+            font-weight: 700;
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header-section p {
+            font-size: 1.25rem;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #e0e0ff;
+            line-height: 1.6;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            padding: 30px;
+        }
+        
+        .grid-item {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .grid-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 每个宫格使用不同的背景颜色 */
+        .grid-item:nth-child(1) .chart-header { background: linear-gradient(95deg, #5c6bc0, #3949ab); }
+        .grid-item:nth-child(2) .chart-header { background: linear-gradient(95deg, #7e57c2, #5e35b1); }
+        .grid-item:nth-child(3) .chart-header { background: linear-gradient(95deg, #26a69a, #00897b); }
+        .grid-item:nth-child(4) .chart-header { background: linear-gradient(95deg, #ff7043, #f4511e); }
+        .grid-item:nth-child(5) .chart-header { background: linear-gradient(95deg, #8e24aa, #6a1b9a); }
+        .grid-item:nth-child(6) .chart-header { background: linear-gradient(95deg, #43a047, #2e7d32); }
+        
+        .chart-header {
+            padding: 20px 25px;
+            font-weight: 600;
+            font-size: 1.4rem;
+            color: white;
+            text-align: center;
+        }
+        
+        .chart-container {
+            padding: 20px;
+            height: 260px;
+            position: relative;
+            background: white;
+        }
+        
+        .data-card {
+            padding: 22px 25px;
+            font-size: 1rem;
+            background: #f9f9ff;
+            border-top: 1px solid #eee;
+        }
+        
+        .data-card h4 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #444;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .data-card h4 i {
+            font-size: 1.3rem;
+        }
+        
+        .data-card p {
+            color: #555;
+            line-height: 1.7;
+        }
+        
+        .source-info {
+            padding: 16px 25px;
+            font-size: 0.9rem;
+            color: #777;
+            background: #f5f5f5;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+        
+        .highlight {
+            background: linear-gradient(90deg, #5e35b1, #1a237e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            padding: 0 3px;
+        }
+
+        @media (max-width: 1100px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 700px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-section h1 {
+                font-size: 2.2rem;
+            }
+            
+            .header-section p {
+                font-size: 1.1rem;
+            }
+        }
+        
+        .footer {
+            padding: 30px;
+            text-align: center;
+            color: #777;
+            background: #f9f9f9;
+            border-top: 1px solid #eee;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header-section">
+            <h1>艾滋病防控多维数据分析报告（2025）</h1>
+            <p>基于国家疾控中心权威数据与多维度可视化技术的综合防控评估</p>
+        </div>
+        
+        <div class="grid-container">
+            <!-- 全国感染率地理分布 -->
+            <div class="grid-item">
+                <div class="chart-header">全国感染率地理分布</div>
+                <div class="chart-container">
+                    <canvas id="regionalChart"></canvas>
+                </div>
+                <div class="data-card">
+                    <h4><i class="fas fa-map-marker-alt"></i> 关键流行病学发现</h4>
+                    <p>南部地区感染率显著高于全国均值，其中<span class="highlight">云南(2.1‰)</span>、<span class="highlight">广西(1.7‰)</span>为最高发区域，这些地区感染率超过全国均值<span class="highlight">(0.9‰)46%</span>以上，需加强区域防控力度。</p>
+                </div>
+                <div class="source-info">数据来源：全国疾控中心监测系统 | 更新时间：2025-06</div>
+            </div>
+            
+            <!-- 传播途径构成分析 -->
+            <div class="grid-item">
+                <div class="chart-header">传播途径构成分析</div>
+                <div class="chart-container">
+                    <canvas id="transmissionChart"></canvas>
+                </div>
+                <div class="data-card">
+                    <h4><i class="fas fa-route"></i> 主要传播模式识别</h4>
+                    <p>性传播已成为绝对主导传播途径(<span class="highlight">78%</span>)，其中异性传播<span class="highlight">(52%)</span>和男男性行为传播<span class="highlight">(26%)</span>为主要渠道，注射吸毒传播已降至<span class="highlight">12%</span>。</p>
+                </div>
+                <div class="source-info">数据来源：传染病监测报告 | 更新时间：2025-06</div>
+            </div>
+            
+            <!-- 年度检测量与阳性率 -->
+            <div class="grid-item">
+                <div class="chart-header">年度检测量与阳性率</div>
+                <div class="chart-container">
+                    <canvas id="testingChart"></canvas>
+                </div>
+                <div class="data-card">
+                    <h4><i class="fas fa-chart-line"></i> 筛查效率评估</h4>
+                    <p>2024年检测量达<span class="highlight">162百万</span>人次，较2020年增长<span class="highlight">35%</span>，而阳性率稳定在<span class="highlight">0.08%</span>左右，表明筛查系统效率显著提升。</p>
+                </div>
+                <div class="source-info">数据来源：全国检测中心数据 | 更新时间：2025-06</div>
+            </div>
+            
+            <!-- 感染者年龄性别分布 -->
+            <div class="grid-item">
+                <div class="chart-header">感染者年龄性别分布</div>
+                <div class="chart-container">
+                    <canvas id="ageGenderChart"></canvas>
+                </div>
+                <div class="data-card">
+                    <h4><i class="fas fa-user-friends"></i> 高危人群特征</h4>
+                    <p>青年男性为主要风险人群，<span class="highlight">20-39岁人群占68%</span>，其中男性占比达<span class="highlight">76%</span>，15-19岁青少年群体阳性率呈上升趋势。</p>
+                </div>
+                <div class="source-info">数据来源：流行病学统计年报 | 更新时间：2025-06</div>
+            </div>
+            
+            <!-- 抗病毒治疗覆盖率 -->
+            <div class="grid-item">
+                <div class="chart-header">抗病毒治疗覆盖率</div>
+                <div class="chart-container">
+                    <canvas id="treatmentChart"></canvas>
+                </div>
+                <div class="data-card">
+                    <h4><i class="fas fa-heartbeat"></i> 医疗资源分布分析</h4>
+                    <p>城市治疗覆盖率达<span class="highlight">82%</span>，但农村地区仅<span class="highlight">56%</span>，西部省份覆盖率低于<span class="highlight">50%</span>，显示医疗资源分布不均问题突出。</p>
+                </div>
+                <div class="source-info">数据来源：全国医疗资源统计 | 更新时间：2025-06</div>
+            </div>
+            
+            <!-- 五年生存率趋势 -->
+            <div class="grid-item">
+                <div class="chart-header">五年生存率趋势</div>
+                <div class="chart-container">
+                    <canvas id="survivalChart"></canvas>
+                </div>
+                <div class="data-card">
+                    <h4><i class="fas fa-heart"></i> 治疗成效评估</h4>
+                    <p>早期治疗干预显著提升生存率，<span class="highlight">5年生存率达92%</span>，相比延迟治疗患者(<span class="highlight">仅65%</span>)，生存率提高<span class="highlight">27%</span>。</p>
+                </div>
+                <div class="source-info">数据来源：全国治疗随访数据库 | 更新时间：2025-06</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>艾滋病防控多维数据分析报告 (2025) | 数据可视化平台 v2.0 | © 2025 国家疾控中心公共卫生信息中心</p>
+        </div>
+    </div>
+    
+    <script>
+        // 图表颜色配置
+        const colorSchemes = {
+            1: ['#5c6bc0', '#3949ab', '#303f9f', '#283593', '#1a237e'],
+            2: ['#7e57c2', '#5e35b1', '#512da8', '#4527a0', '#311b92'],
+            3: ['#26a69a', '#00897b', '#00796b', '#00695c', '#004d40'],
+            4: ['#ff7043', '#f4511e', '#e64a19', '#d84315', '#bf360c'],
+            5: ['#8e24aa', '#7b1fa2', '#6a1b9a', '#4a148c', '#38006b'],
+            6: ['#43a047', '#388e3c', '#2e7d32', '#1b5e20', '#0d5302']
+        };
+        
+        // 左上：全国感染率地理分布（柱状图）
+        new Chart(document.getElementById('regionalChart'), {
+            type: 'bar',
+            data: {
+                labels: ['云南', '广西', '四川', '广东', '河南'],
+                datasets: [{
+                    label: '感染率(‰)',
+                    data: [2.1, 1.7, 1.2, 0.9, 0.8],
+                    backgroundColor: colorSchemes[1],
+                    borderWidth: 0,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { drawOnChartArea: true, color: '#f1f1f1' },
+                        ticks: {
+                            callback: function(value) {
+                                return value + '‰';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+        
+        // 右上：传播途径构成（环形图）
+        new Chart(document.getElementById('transmissionChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['异性传播', '同性传播', '注射吸毒', '母婴传播', '其他'],
+                datasets: [{
+                    data: [52, 26, 12, 5, 5],
+                    backgroundColor: colorSchemes[2],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '58%',
+                plugins: {
+                    legend: { 
+                        position: 'bottom',
+                        labels: { 
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 左中：年度检测量与阳性率（双轴折线图）
+        new Chart(document.getElementById('testingChart'), {
+            type: 'line',
+            data: {
+                labels: ['2020', '2021', '2022', '2023', '2024'],
+                datasets: [
+                    {
+                        label: '检测量(百万)',
+                        data: [120, 135, 142, 158, 162],
+                        borderColor: colorSchemes[3][0],
+                        backgroundColor: 'rgba(38, 166, 154, 0.08)',
+                        yAxisID: 'y',
+                        borderWidth: 3,
+                        pointBackgroundColor: colorSchemes[3][0],
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: '阳性率(%)',
+                        data: [0.10, 0.09, 0.08, 0.08, 0.08],
+                        borderColor: colorSchemes[3][4],
+                        backgroundColor: 'rgba(255, 112, 67, 0)',
+                        yAxisID: 'y1',
+                        borderWidth: 3,
+                        pointBackgroundColor: colorSchemes[3][4],
+                        tension: 0.3,
+                        borderDash: [5, 5]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        grid: { drawOnChartArea: true, color: '#f1f1f1' },
+                        min: 100,
+                        max: 180
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        grid: { display: false },
+                        min: 0,
+                        max: 0.15,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(2) + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 右中：感染者年龄性别分布（分组条形图）
+        new Chart(document.getElementById('ageGenderChart'), {
+            type: 'bar',
+            data: {
+                labels: ['15-19岁', '20-24岁', '25-29岁', '30-34岁', '35-39岁', '40+岁'],
+                datasets: [
+                    {
+                        label: '男性',
+                        data: [100, 250, 350, 300, 200, 150],
+                        backgroundColor: colorSchemes[4][0],
+                        barPercentage: 0.7
+                    },
+                    {
+                        label: '女性',
+                        data: [80, 150, 120, 100, 90, 80],
+                        backgroundColor: colorSchemes[4][3],
+                        barPercentage: 0.7
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: false,
+                        grid: { drawOnChartArea: true, color: '#f1f1f1' }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { callback: function(value) { return value; } }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' }
+                }
+            }
+        });
+        
+        // 左下：抗病毒治疗覆盖率（水平条形图）
+        new Chart(document.getElementById('treatmentChart'), {
+            type: 'bar',
+            data: {
+                labels: ['城市地区', '农村地区', '西部地区'],
+                datasets: [{
+                    label: '覆盖率 (%)',
+                    data: [82, 56, 48],
+                    backgroundColor: [colorSchemes[5][0], colorSchemes[5][2], colorSchemes[5][4]],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        min: 0,
+                        max: 100,
+                        grid: { color: '#f1f1f1' },
+                        ticks: { callback: function(value) { return value + '%'; } }
+                    }
+                }
+            }
+        });
+        
+        // 右下：五年生存率趋势（折线图）
+        new Chart(document.getElementById('survivalChart'), {
+            type: 'line',
+            data: {
+                labels: ['诊断后1年', '2年', '3年', '4年', '5年'],
+                datasets: [
+                    {
+                        label: '早期治疗',
+                        data: [99, 97, 95, 93, 92],
+                        borderColor: colorSchemes[6][0],
+                        backgroundColor: 'rgba(67, 160, 71, 0.08)',
+                        borderWidth: 3,
+                        pointBackgroundColor: colorSchemes[6][0],
+                        tension: 0.2
+                    },
+                    {
+                        label: '延迟治疗',
+                        data: [85, 80, 75, 70, 65],
+                        borderColor: colorSchemes[6][4],
+                        backgroundColor: 'rgba(179, 46, 53, 0)',
+                        borderWidth: 3,
+                        pointBackgroundColor: colorSchemes[6][4],
+                        tension: 0.2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        min: 50,
+                        max: 100,
+                        grid: { drawOnChartArea: true, color: '#f1f1f1' },
+                        ticks: { 
+                            callback: function(value) { 
+                                return value + '%'; 
+                            } 
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
